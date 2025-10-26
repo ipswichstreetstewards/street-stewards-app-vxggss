@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/app/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
@@ -27,11 +27,7 @@ export function useEvents() {
   const [events, setEvents] = useState<CommunityEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchEvents();
-  }, [user]);
-
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       console.log('Fetching community events');
       
@@ -76,7 +72,11 @@ export function useEvents() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   const createEvent = async (eventData: Omit<CommunityEvent, 'id' | 'organizer_id' | 'organizer_name' | 'attendees' | 'attendee_count' | 'user_is_attending'>) => {
     if (!user) return;

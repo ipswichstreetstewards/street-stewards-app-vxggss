@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/app/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
@@ -24,11 +24,7 @@ export function usePlants() {
   const [plants, setPlants] = useState<PlantPost[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchPlants();
-  }, [user]);
-
-  const fetchPlants = async () => {
+  const fetchPlants = useCallback(async () => {
     try {
       console.log('Fetching plant posts');
       
@@ -81,7 +77,11 @@ export function usePlants() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchPlants();
+  }, [fetchPlants]);
 
   const createPlant = async (plantData: Omit<PlantPost, 'id' | 'user_id' | 'user_name' | 'posted_date' | 'likes' | 'user_has_liked'>) => {
     if (!user) return;
